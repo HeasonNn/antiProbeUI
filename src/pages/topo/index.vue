@@ -7,6 +7,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { type EChartsType } from 'echarts/core';
+import { GetTopo } from "@/api/topo/topo";
 
 const ICONS = {
     PC: 'image://src/assets/icons/PC.png',
@@ -16,7 +17,63 @@ const ICONS = {
     DC: 'image://src/assets/icons/DC.png',
 };
 
-const chartOptions = ref({
+// 定义接口
+interface Device {
+    id: number;
+    name: string;
+    device_type: string;
+    ip_address: string;
+    mac_address: string;
+    location: string;
+    description: string;
+}
+
+interface Connection {
+    source: string;
+    target: string;
+}
+
+interface TopologyResponse {
+    devices: Device[];
+    connections: [string, string][];
+}
+
+// 定义类型
+interface Edge {
+    source: string;
+    target: string;
+}
+
+interface NodeData {
+    name: string;
+    symbol: string;
+}
+
+interface ChartOptions {
+    title: {
+        text: string;
+    };
+    tooltip: {};
+    series: Array<{
+        type: string;
+        layout: string;
+        symbolSize: number;
+        roam: boolean;
+        label: {
+            show: boolean;
+            fontSize: number;
+        };
+        edgeSymbol: [string, string];
+        edgeSymbolSize: [number, number];
+        force: {
+            repulsion: number;
+        };
+        edges: Edge[];
+        data: NodeData[];
+    }>;
+}
+
+const chartOptions = ref<ChartOptions>({
     title: {
         text: '网络拓扑图',
     },
@@ -36,35 +93,59 @@ const chartOptions = ref({
             force: {
                 repulsion: 800, // 节点间的排斥力
             },
-            // 节点与节点之间的连接关系
-            edges: [
-                { source: '主机1', target: '交换机' },
-                { source: '主机2', target: '交换机' },
-                { source: '交换机', target: '路由器' },
-                { source: '路由器', target: '主机3' },
-            ],
-            // 定义节点数据
-            data: [
-                { name: '主机1', symbol: ICONS.PC },
-                { name: '主机2', symbol: ICONS.PC },
-                { name: '交换机', symbol: ICONS.SWITCH },
-                { name: '路由器', symbol: ICONS.ROUTER },
-                { name: '主机3', symbol: ICONS.PC },
-            ],
+            edges: [],        // 初始化为空数组
+            data: [],         // 初始化为空数组
         },
     ],
 });
 
+const topologyData = ref<TopologyResponse | null>(null);
 const chartRef = ref<EChartsType | null>(null);
 
-onMounted(() => {
-    const resizeChart = () => {
-        if (chartRef.value) {
-            chartRef.value.resize();
-        }
-    };
+const doGetTopo = async () => {
+    let res = await GetTopo();
+    topologyData.value = res.data;
+};
+
+const resizeChart = () => {
+    if (chartRef.value) {
+        chartRef.value.resize();
+    }
+};
+
+onMounted(async () => {
+
+
+    await doGetTopo(); // 等待数据加载完成
+
+    if (topologyData.value) {
+        const edges = topologyData.value.connections.map(([source, target]) => ({ source, target }));
+        const data = topologyData.value.devices.map(device => ({
+            name: device.name,
+            symbol: getDeviceIcon(device.device_type), // 根据设备类型选择合适的图标
+        }));
+
+        chartOptions.value.series[0].edges = edges;
+        chartOptions.value.series[0].data = data;
+    }
+
     window.addEventListener('resize', resizeChart);
 });
+
+
+// 根据设备类型返回合适的图标
+function getDeviceIcon(deviceType: string) {
+    switch (deviceType) {
+        case 'PC':
+            return ICONS.PC;
+        case 'Switch':
+            return ICONS.SWITCH;
+        case 'Router':
+            return ICONS.ROUTER;
+        default:
+            return 'circle'; // 默认图标
+    }
+}
 
 </script>
 

@@ -10,4 +10,5 @@ import 'echarts';
 const app = createApp(App);
 app.component('v-chart', ECharts);
 app.use(router)
+app.use(ElementPlus);
 app.mount('#app');
