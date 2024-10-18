@@ -4,5 +4,10 @@ import router from "@/router";
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
 import "@/style/reset.scss";
+import ECharts from 'vue-echarts';
+import 'echarts';
 
-createApp(App).use(router).mount('#app');
+const app = createApp(App);
+app.component('v-chart', ECharts);
+app.use(router)
+app.mount('#app');
