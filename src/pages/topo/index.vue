@@ -17,7 +17,6 @@ const ICONS = {
     DC: 'image://src/assets/icons/DC.png',
 };
 
-// 定义接口
 interface Device {
     id: number;
     name: string;
@@ -103,7 +102,7 @@ const topologyData = ref<TopologyResponse | null>(null);
 const chartRef = ref<EChartsType | null>(null);
 
 const doGetTopo = async () => {
-    let res = await GetTopo();
+    let res = await GetTopo({ exp: String("exp1") });
     topologyData.value = res.data;
 };
 
