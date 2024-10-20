@@ -1,32 +1,18 @@
 <template>
     <div>
-        <p>Welcome to the Home Page.</p>
+        <h1 class="h1">Hello world.</h1>
+        <p> &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;--form Rust & vue3</p>
     </div>
-
-    <div>
-        <el-button type="primary" plain @click="doreqControlPageHome">test get_info</el-button>
-    </div>
-
 </template>
 
-<script setup lang="ts">
-import type { ReqTopoInfo } from "@/types";
-import { reqControlPageHome } from "@/api/home";
-
-const doreqControlPageHome = async () => {
-    const req: ReqTopoInfo = {
-        name: "1",
-        game_type: 1
-    };
-    return await reqControlPageHome(req);
-}
-
-</script>
+<script setup lang="ts"></script>
 
 
 
 <style scoped lang="scss">
-h1 {
-    color: blue;
+.h1 {
+    font-size: 30px;
+    margin-bottom: 5px;
+    font-weight: 500;
 }
 </style>
